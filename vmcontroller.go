@@ -152,7 +152,7 @@ func (c *VMController) syncVMStatus() {
 	vmList, err := c.vmLister.List(labels)
 
 	if err != nil {
-		glog.V(3).Infof(fmt.Sprintf( "Error listing while syncing vm status: err=%+v", err))
+		glog.V(3).Infof(fmt.Sprintf("Error listing while syncing vm status: err=%+v", err))
 		return
 	}
 
@@ -248,6 +248,7 @@ func (c *VMController) syncHandler(key string) error {
 
 		return err
 	}
+	glog.V(4).Infof("Processing object: %s", vmObj.GetName())
 
 	// Add finalizers if not added
 	if !util.ContainsString(vmObj.ObjectMeta.Finalizers, util.VMProtectionFinalizer, nil) {
@@ -269,7 +270,7 @@ func (c *VMController) syncHandler(key string) error {
 	// if status.uuid is empty, vm might not created,  try to create it.
 	if types.UID("") == vmObj.Status.VMID {
 		if vmInstance, err = c.createVM(vmObj); err != nil {
-			return  err
+			return err
 		}
 	}
 
@@ -283,8 +284,7 @@ func (c *VMController) syncHandler(key string) error {
 	return nil
 }
 
-
-func (c *VMController) getVMFromList (name string) (*vm.VM, error) {
+func (c *VMController) getVMFromList(name string) (*vm.VM, error) {
 	vmInstanceList, err := c.vmManager.List()
 	if err != nil {
 		return nil, err
@@ -297,29 +297,26 @@ func (c *VMController) getVMFromList (name string) (*vm.VM, error) {
 	return nil, errors.New(fmt.Sprintf("vm %s not found in list", name))
 }
 
-func (c *VMController) createVM(vmObj *samplev1alpha1.VM)(*vm.VM, error) {
-	var err error
-	var vmInstance *vm.VM
+func (c *VMController) createVM(vmObj *samplev1alpha1.VM) (*vm.VM, error) {
 
 	if vmObj == nil {
 		return nil, errors.New("skip nil obj")
 	}
 
-	vmInstance, err = c.vmManager.Create(vmObj.Name)
-	if err != nil {
+	if vmInstance, err := c.vmManager.Create(vmObj.Name); err != nil {
 		if apiError.IsAlreadyExists(err) {
-			return  c.getVMFromList(vmObj.Name)
+			return c.getVMFromList(vmObj.Name)
 		}
 		return nil, err
+	} else {
+		return vmInstance, nil
 	}
-
-	return vmInstance, nil
 }
 
 func (c *VMController) deleteVM(vmObj *samplev1alpha1.VM) error {
 	var err error
 	if vmObj == nil {
-		return  errors.New("skip nil pointer")
+		return errors.New("skip nil pointer")
 	}
 	vmInstance, err := c.getVMFromList(vmObj.Name)
 
@@ -341,7 +338,7 @@ func (c *VMController) updateVMStatus(vmObj *samplev1alpha1.VM, vmInstance *vm.V
 
 	if vmObj.Status.VMID == "" {
 		vmID = vmObj.Status.VMID
-	}else if nil != vmInstance {
+	} else if nil != vmInstance {
 		if vmInstance.ID == "" {
 			return errors.New("no vm id found")
 		} else {
@@ -382,7 +379,7 @@ func (c *VMController) enqueueVM(obj interface{}) {
 	c.workqueue.AddRateLimited(key)
 }
 
-func (c *VMController) removeFinalizer(vmObj *samplev1alpha1.VM) error{
+func (c *VMController) removeFinalizer(vmObj *samplev1alpha1.VM) error {
 
 	if vmObj == nil {
 		return errors.New("Skip nil obj")
@@ -398,7 +395,6 @@ func (c *VMController) removeFinalizer(vmObj *samplev1alpha1.VM) error{
 
 	return nil
 }
-
 
 func (c *VMController) addFinalizer(vmObj *samplev1alpha1.VM) error {
 

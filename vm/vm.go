@@ -1,13 +1,12 @@
 package vm
 
 import (
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 )
 
 type VM struct {
-	ID           types.UID `json:"id"`
-	Name           string `json:"name"`
+	ID   types.UID `json:"id"`
+	Name string    `json:"name"`
 }
 
 type VMStatus struct {
@@ -16,42 +15,42 @@ type VMStatus struct {
 }
 
 type Interface interface {
-	Create(name string)(*VM, *errors.StatusError)
-	List()([]VM, *errors.StatusError)
-	Get(uuid types.UID)(*VM, *errors.StatusError)
-	Check(name string)(*errors.StatusError)
-	GetStatus(uuid types.UID)(*VMStatus, *errors.StatusError)
-	Delete(uuid types.UID)*errors.StatusError
+	Create(name string) (*VM, error)
+	List() ([]VM, error)
+	Get(uuid types.UID) (*VM, error)
+	Check(name string) error
+	GetStatus(uuid types.UID) (*VMStatus, error)
+	Delete(uuid types.UID) error
 }
 
-type fakeVMManager struct {}
+type fakeVMManager struct{}
 
 func NewVMManager() Interface {
 	return &fakeVMManager{}
 }
 
-func (*fakeVMManager) Create(string) (*VM, *errors.StatusError){
+func (*fakeVMManager) Create(string) (*VM, error) {
+	//return nil, errors.NewBadRequest("Not implement")
 	return &VM{}, nil
 }
 
-func (*fakeVMManager) List()([]VM, *errors.StatusError){
+func (*fakeVMManager) List() ([]VM, error) {
 	return nil, nil
 }
 
-func (*fakeVMManager) Get(uuid types.UID)(*VM, *errors.StatusError) {
+func (*fakeVMManager) Get(uuid types.UID) (*VM, error) {
+	//return nil, errors.NewBadRequest("Not implement")
 	return &VM{}, nil
 }
 
-func (*fakeVMManager) Check(name string)( *errors.StatusError) {
+func (*fakeVMManager) Check(name string) error {
 	return nil
 }
 
-func (*fakeVMManager) GetStatus(uuid types.UID)(*VMStatus, *errors.StatusError) {
+func (*fakeVMManager) GetStatus(uuid types.UID) (*VMStatus, error) {
 	return &VMStatus{}, nil
 }
 
-func (*fakeVMManager) Delete(uuid types.UID)*errors.StatusError{
+func (*fakeVMManager) Delete(uuid types.UID) error {
 	return nil
 }
-
-
