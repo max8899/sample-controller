@@ -32,6 +32,10 @@ func (c *FakeSamplecontrollerV1alpha1) Foos(namespace string) v1alpha1.FooInterf
 	return &FakeFoos{c, namespace}
 }
 
+func (c *FakeSamplecontrollerV1alpha1) VMs(namespace string) v1alpha1.VMInterface {
+	return &FakeVMs{c, namespace}
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeSamplecontrollerV1alpha1) RESTClient() rest.Interface {

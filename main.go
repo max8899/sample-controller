@@ -18,6 +18,7 @@ package main
 
 import (
 	"flag"
+	"net/http"
 	"time"
 
 	"github.com/golang/glog"
@@ -27,6 +28,7 @@ import (
 	// Uncomment the following line to load the gcp plugin (only required to authenticate against GKE clusters).
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	clientset "k8s.io/sample-controller/pkg/client/clientset/versioned"
 	informers "k8s.io/sample-controller/pkg/client/informers/externalversions"
 	"k8s.io/sample-controller/pkg/signals"
@@ -65,12 +67,22 @@ func main() {
 		kubeInformerFactory.Apps().V1().Deployments(),
 		exampleInformerFactory.Samplecontroller().V1alpha1().Foos())
 
+	vmController := NewVMController(kubeClient, exampleClient,
+		exampleInformerFactory.Samplecontroller().V1alpha1().VMs())
+
 	go kubeInformerFactory.Start(stopCh)
 	go exampleInformerFactory.Start(stopCh)
 
 	if err = controller.Run(2, stopCh); err != nil {
 		glog.Fatalf("Error running controller: %s", err.Error())
 	}
+
+	if err = vmController.Run(2, stopCh); err != nil {
+		glog.Fatalf("Error running vm controller: %s", err.Error())
+	}
+
+	http.Handle("/metrics", promhttp.Handler())
+	http.ListenAndServe(":2112", nil)
 }
 
 func init() {

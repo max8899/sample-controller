@@ -18,6 +18,7 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 // +genclient
@@ -51,4 +52,37 @@ type FooList struct {
 	metav1.ListMeta `json:"metadata"`
 
 	Items []Foo `json:"items"`
+}
+
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// VM is a specification for a VM resource
+type VM struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	Spec   VMSpec   `json:"spec"`
+	Status VMStatus `json:"status"`
+}
+
+// VMSpec is the spec for a Foo resource
+type VMSpec struct {
+	VMName string `json:"vmname"`
+}
+
+// VMStatus is the status for a Foo resource
+type VMStatus struct {
+	VMID           types.UID `json:"vmId"`
+	CPUUtilization int32     `json:"cpuUtilization"`
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// FooList is a list of Foo resources
+type VMList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []VM `json:"items"`
 }

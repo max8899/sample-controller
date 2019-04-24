@@ -25,3 +25,11 @@ type FooListerExpansion interface{}
 // FooNamespaceListerExpansion allows custom methods to be added to
 // FooNamespaceLister.
 type FooNamespaceListerExpansion interface{}
+
+// VMListerExpansion allows custom methods to be added to
+// VMLister.
+type VMListerExpansion interface{}
+
+// VMNamespaceListerExpansion allows custom methods to be added to
+// VMNamespaceLister.
+type VMNamespaceListerExpansion interface{}
