@@ -73,9 +73,11 @@ func main() {
 	go kubeInformerFactory.Start(stopCh)
 	go exampleInformerFactory.Start(stopCh)
 
-	if err = controller.Run(2, stopCh); err != nil {
-		glog.Fatalf("Error running controller: %s", err.Error())
-	}
+	go func() {
+		if err = controller.Run(2, stopCh); err != nil {
+			glog.Fatalf("Error running controller: %s", err.Error())
+		}
+	}()
 
 	if err = vmController.Run(2, stopCh); err != nil {
 		glog.Fatalf("Error running vm controller: %s", err.Error())

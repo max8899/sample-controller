@@ -114,7 +114,7 @@ func (c *VMController) Run(threadiness int, stopCh <-chan struct{}) error {
 	defer c.workqueue.ShutDown()
 
 	// Start the informer factories to begin populating the informer caches
-	glog.Info("Starting Foo controller")
+	glog.Info("Starting VM controller")
 
 	// Wait for the caches to be synced before starting workers
 	glog.Info("Waiting for informer caches to sync")
@@ -123,7 +123,7 @@ func (c *VMController) Run(threadiness int, stopCh <-chan struct{}) error {
 	}
 
 	glog.Info("Starting workers")
-	// Launch two workers to process Foo resources
+	// Launch two workers to process VM resources
 	for i := 0; i < threadiness; i++ {
 		go wait.Until(c.runWorker, time.Second, stopCh)
 	}
@@ -151,7 +151,10 @@ func (c *VMController) syncVMStatus() {
 
 	vmList, err := c.vmLister.List(labels)
 
-	glog.V(3).Infof(fmt.Sprintf( "Error listing while syncing vm status: err=%+v", err))
+	if err != nil {
+		glog.V(3).Infof(fmt.Sprintf( "Error listing while syncing vm status: err=%+v", err))
+		return
+	}
 
 	if len(vmList) == 0 {
 		return
@@ -203,7 +206,7 @@ func (c *VMController) processNextWorkItem() bool {
 			return nil
 		}
 		// Run the syncHandler, passing it the namespace/name string of the
-		// Foo resource to be synced.
+		// VM resource to be synced.
 		if err := c.syncHandler(key); err != nil {
 			return fmt.Errorf("error syncing '%s': %s", key, err.Error())
 		}
@@ -347,7 +350,7 @@ func (c *VMController) updateVMStatus(vmObj *samplev1alpha1.VM, vmInstance *vm.V
 	vmCopy.Status.VMID = vmInstanceStatus.VMID
 	vmCopy.Status.CPUUtilization = vmInstanceStatus.CPUUtilization
 	// If the CustomResourceSubresources feature gate is not enabled,
-	// we must use Update instead of UpdateStatus to update the Status block of the Foo resource.
+	// we must use Update instead of UpdateStatus to update the Status block of the VM resource.
 	// UpdateStatus will not allow changes to the Spec of the resource,
 	// which is ideal for ensuring nothing other than resource status has been updated.
 	_, err = c.sampleclientset.SamplecontrollerV1alpha1().VMs(vmObj.Namespace).Update(vmCopy)
@@ -356,7 +359,7 @@ func (c *VMController) updateVMStatus(vmObj *samplev1alpha1.VM, vmInstance *vm.V
 
 // enqueueVM takes a VM resource and converts it into a namespace/name
 // string which is then put onto the work queue. This method should *not* be
-// passed resources of any type other than Foo.
+// passed resources of any type other than VM.
 func (c *VMController) enqueueVM(obj interface{}) {
 	var key string
 	var err error
