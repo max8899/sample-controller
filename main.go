@@ -79,9 +79,11 @@ func main() {
 		}
 	}()
 
-	if err = vmController.Run(2, stopCh); err != nil {
-		glog.Fatalf("Error running vm controller: %s", err.Error())
-	}
+	go func() {
+                if err = vmController.Run(2, stopCh); err != nil {
+		    glog.Fatalf("Error running vm controller: %s", err.Error())
+	        }
+	}()
 
 	http.Handle("/metrics", promhttp.Handler())
 	http.ListenAndServe(":2112", nil)
