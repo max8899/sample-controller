@@ -301,6 +301,10 @@ func (c *VMController) createVM(vmObj *samplev1alpha1.VM)(*vm.VM, error) {
 	var err error
 	var vmInstance *vm.VM
 
+	if vmObj == nil {
+		return nil, errors.New("skip nil obj")
+	}
+
 	vmInstance, err = c.vmManager.Create(vmObj.Name)
 	if err != nil {
 		if apiError.IsAlreadyExists(err) {
@@ -314,6 +318,9 @@ func (c *VMController) createVM(vmObj *samplev1alpha1.VM)(*vm.VM, error) {
 
 func (c *VMController) deleteVM(vmObj *samplev1alpha1.VM) error {
 	var err error
+	if vmObj == nil {
+		return  errors.New("skip nil pointer")
+	}
 	vmInstance, err := c.getVMFromList(vmObj.Name)
 
 	if err != nil {
@@ -332,14 +339,19 @@ func (c *VMController) updateVMStatus(vmObj *samplev1alpha1.VM, vmInstance *vm.V
 		return errors.New("unexcepted parameters, nil pointer received.")
 	}
 
-	if vmObj.Status.VMID == vmID && vmInstance.ID == vmID {
-		return errors.New("no vm id found")
+	if vmObj.Status.VMID == "" {
+		vmID = vmObj.Status.VMID
+	}else if nil != vmInstance {
+		if vmInstance.ID == "" {
+			return errors.New("no vm id found")
+		} else {
+			vmID = vmInstance.ID
+		}
 	}
-
 	var err error
 	var vmInstanceStatus *vm.VMStatus
 
-	if vmInstanceStatus, err = c.vmManager.GetStatus(vmInstance.ID); err != nil {
+	if vmInstanceStatus, err = c.vmManager.GetStatus(vmID); err != nil {
 		return err
 	}
 
@@ -371,6 +383,10 @@ func (c *VMController) enqueueVM(obj interface{}) {
 }
 
 func (c *VMController) removeFinalizer(vmObj *samplev1alpha1.VM) error{
+
+	if vmObj == nil {
+		return errors.New("Skip nil obj")
+	}
 	vmCopy := vmObj.DeepCopy()
 	vmCopy.ObjectMeta.Finalizers = util.RemoveString(vmCopy.ObjectMeta.Finalizers, util.VMProtectionFinalizer, nil)
 	_, err := c.sampleclientset.SamplecontrollerV1alpha1().VMs(vmCopy.Namespace).Update(vmCopy)
@@ -385,6 +401,10 @@ func (c *VMController) removeFinalizer(vmObj *samplev1alpha1.VM) error{
 
 
 func (c *VMController) addFinalizer(vmObj *samplev1alpha1.VM) error {
+
+	if vmObj == nil {
+		return errors.New("Skip nil obj")
+	}
 	vmCopy := vmObj.DeepCopy()
 	vmCopy.ObjectMeta.Finalizers = append(vmCopy.ObjectMeta.Finalizers, util.VMProtectionFinalizer)
 	_, err := c.sampleclientset.SamplecontrollerV1alpha1().VMs(vmCopy.Namespace).Update(vmCopy)
