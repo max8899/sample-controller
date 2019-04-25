@@ -131,7 +131,7 @@ func (c *FakeVMs) DeleteCollection(options *v1.DeleteOptions, listOptions v1.Lis
 // Patch applies the patch and returns the patched vM.
 func (c *FakeVMs) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.VM, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(vmsResource, c.ns, name, data, subresources...), &v1alpha1.VM{})
+		Invokes(testing.NewPatchSubresourceAction(vmsResource, c.ns, name, types.MergePatchType, data, subresources...), &v1alpha1.VM{})
 
 	if obj == nil {
 		return nil, err

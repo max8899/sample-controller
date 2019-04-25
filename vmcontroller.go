@@ -388,10 +388,10 @@ func (c *VMController) removeFinalizer(vmObj *samplev1alpha1.VM) error {
 	vmCopy.ObjectMeta.Finalizers = util.RemoveString(vmCopy.ObjectMeta.Finalizers, util.VMProtectionFinalizer, nil)
 	_, err := c.sampleclientset.SamplecontrollerV1alpha1().VMs(vmCopy.Namespace).Update(vmCopy)
 	if err != nil {
-		glog.V(3).Infof("Error removing protection finalizer from PVC %s/%s: %v", vmObj.Namespace, vmObj.Name, err)
+		glog.V(3).Infof("Error removing protection finalizer from VM %s/%s: %v", vmObj.Namespace, vmObj.Name, err)
 		return err
 	}
-	glog.V(3).Infof("Removed protection finalizer from PVC %s/%s", vmObj.Namespace, vmObj.Name)
+	glog.V(3).Infof("Removed protection finalizer from VM %s/%s", vmObj.Namespace, vmObj.Name)
 
 	return nil
 }
@@ -405,9 +405,9 @@ func (c *VMController) addFinalizer(vmObj *samplev1alpha1.VM) error {
 	vmCopy.ObjectMeta.Finalizers = append(vmCopy.ObjectMeta.Finalizers, util.VMProtectionFinalizer)
 	_, err := c.sampleclientset.SamplecontrollerV1alpha1().VMs(vmCopy.Namespace).Update(vmCopy)
 	if err != nil {
-		glog.V(3).Infof("Error adding protection finalizer to PVC %s/%s: %v", vmObj.Namespace, vmObj.Name, err)
+		glog.V(3).Infof("Error adding protection finalizer to VM %s/%s: %v", vmObj.Namespace, vmObj.Name, err)
 		return err
 	}
-	glog.V(3).Infof("Added protection finalizer to PVC %s/%s", vmObj.Namespace, vmObj.Name)
+	glog.V(3).Infof("Added protection finalizer to VM %s/%s", vmObj.Namespace, vmObj.Name)
 	return nil
 }
